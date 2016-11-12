@@ -1,17 +1,17 @@
 var template = '<option value="__value__" class="opciones">__opcion__</option>';
 
 var templatePersonajes = '<div class="col s12 m4">' +
-				    '<div class="card horizontal hoverable">' +
-				      	'<div class="card-stacked">' +
-				        	'<div class="card-content deep-orange lighten-2 white-text">' +
-				          		'<p>Hi, my name is <strong>__name__</strong></p>' +
-				        	'</div>' +
-					    '</div>' +
-			    	'</div>' +
-			  	'</div>';
+						    '<div class="card horizontal hoverable">' +
+						      	'<div class="card-stacked">' +
+						        	'<div class="card-content deep-orange lighten-2 white-text">' +
+						          		'<p>Hi, my name is <strong>__name__</strong></p>' +
+						        	'</div>' +
+							    '</div>' +
+					    	'</div>' +
+					  	'</div>';
 
 var cargarPagina = function() {
-	$.getJSON("http://swapi.co/api/species/", mostrarEspecies);
+	$.getJSON("https://swapi.co/api/species/", mostrarEspecies);
 	$("#species").change(seleccionar);
 };
 
@@ -21,29 +21,30 @@ var mostrarEspecies = function(response) {
 	var especies = "";
 	$.each(response.results, function(i, especie) {
 		var id = "";
+		var idUrl = "";
 		for (var i = 0, l = especie.people.length; i < l; i++) {
 				id += especie.people[i].substr(-3);
+				idUrl = id.substring(0, id.length-1);
+				console.log(idUrl);
 		}
 		especies += template
 					.replace("__opcion__", especie.name)
-					.replace("__value__", id);
+					.replace("__value__", idUrl);
 
 	});
 	$("#species").append(especies);
-	$(".opciones").attr("value", response.url);
 };
 
-var seleccionar = function(response) {
-	alert($(this).val()); // 20|40|45
-	for (var i = 0; i < 3; i++) {
-		$.getJSON("http://swapi.co/api/people/" + $(this).val(), function() {
-			var personajes = "";
-			$.each(response, function(i, personaje) {
-				personajes += templatePersonajes
-					  		  .replace("__name__", personaje.name);
-				console.log(response);
-	});
-	$("#people").append(personajes);
-	});
-	/*}*/
+var seleccionar = function(event) {
+	event.preventDefault();
+	var url = $(this).val().split("/");
+	for (var i = 0, l = url.length; i < l; i++) {
+		$.getJSON("https://swapi.co/api/people/" + url[i] + "/", function(response) {
+			var personajes = templatePersonajes
+					 		 .replace("__name__", response.name);
+			console.log(response.name);
+			$("#people").append(personajes);
+		});
+	}
+	$("#people").children().remove();
 };
